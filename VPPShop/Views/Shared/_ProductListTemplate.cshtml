@@ -1,0 +1,70 @@
+﻿@{
+    Layout = "_Layout";
+    var currentAction = ViewContext.RouteData.Values["action"].ToString();
+    var currentController = ViewContext.RouteData.Values["controller"].ToString();
+
+    var queryParams = new Dictionary<string, string>();
+
+    var query = Context.Request.Query;
+    foreach (var key in query.Keys)
+    {
+        queryParams[key] = query[key];
+    }
+
+    string GenerateUrlWithDisplay(int number)
+    {
+        queryParams["displayNumber"] = number.ToString();
+        return Url.Action(currentAction, currentController, queryParams);
+    }
+}
+
+@RenderSection("BreadCrumb", required: false)
+
+<!-- Shop Start -->
+<div class="container-fluid">
+    <div class="row px-xl-5">
+        @if (ViewBag.ShowSidebar ?? true)
+        {
+            <!-- Shop Sidebar Start -->
+            <div class="col-lg-3 col-md-4">
+                <h5 class="section-title position-relative text-uppercase mb-3">
+                    <span class="bg-secondary pr-3">Lọc theo danh mục</span>
+                </h5>
+                @await Component.InvokeAsync("FilterSidebar")
+            </div>
+            <!-- Shop Sidebar End -->
+        }
+
+
+        <!-- Shop Product Start -->
+        <div class="@(ViewBag.ShowSidebar ?? true ? "col-lg-9 col-md-8" : "col-lg-12")">
+            <div class="row pb-3">
+                <div class="col-12 pb-1">
+                    <div class="d-flex align-items-center justify-content-end mb-4">
+                        <div class="ml-2">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">Sắp xếp theo</button>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <a class="dropdown-item" href="#">Gần đây nhất</a>
+                                    <a class="dropdown-item" href="#">Nổi bật</a>
+                                    <a class="dropdown-item" href="#">Đánh giá cao</a>
+                                </div>
+                            </div>
+                            <div class="btn-group ml-2">
+                                <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">Hiển thị</button>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <a class="dropdown-item" href="@GenerateUrlWithDisplay(12)">12</a>
+                                    <a class="dropdown-item" href="@GenerateUrlWithDisplay(24)">24</a>
+                                    <a class="dropdown-item" href="@GenerateUrlWithDisplay(36)">36</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @RenderBody()
+            </div>
+        </div>
+        <!-- Shop Product End -->
+    </div>
+</div>
+<!-- Shop End -->

@@ -1,0 +1,25 @@
+﻿@model IEnumerable<VPPShop.Models.FilterSidebarViewModel>
+
+@{
+    // Lấy pageSize từ query string hiện tại, nếu không có thì mặc định là 12
+    var currentPageSize = Context.Request.Query["displayNumber"].ToString();
+    if (string.IsNullOrEmpty(currentPageSize)) currentPageSize = "12";
+}
+
+<div class="bg-light p-4 mb-30">
+    @foreach (var item in Model)
+    {
+        <div class="d-flex justify-content-between mb-2">
+            <a asp-controller="Product"
+               asp-action="Index" 
+               asp-route-category="@item.CategoryId" 
+               asp-route-displayNumber="@currentPageSize"
+               class="bg-light text-dark btn-sm w-100 text-left">
+                @item.CategoryName
+            </a>
+            <span class="badge border font-weight-normal ml-2 align-items-center justify-content-center d-flex">
+                @item.Count
+            </span>
+        </div>
+    }
+</div>

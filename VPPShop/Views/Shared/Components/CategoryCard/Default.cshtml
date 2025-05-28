@@ -1,0 +1,16 @@
+﻿@foreach (var item in Model)
+{
+    <div class="col-lg-6 col-md-6 col-sm-6 pb-1">
+        <a class="text-decoration-none" asp-controller="Product" asp-action="Index" asp-route-category="@item.CategoryId">
+            <div class="cat-item d-flex align-items-center mb-4">
+                <div class="overflow-hidden" style="width: 100px; height: 100px;">
+                    <img class="img-fluid" src="~/img/categories/@item.Image" alt="@item.CategoryName">
+                </div>
+                <div class="flex-grow-1 px-3 py-0 justify-content-start">
+                    <h4 class="mb-2">@item.CategoryName</h4>
+                    <h6 class="text-body align-self-center m-0">@item.Count sản phẩm</h6>
+                </div>
+            </div>
+        </a>
+    </div>
+}

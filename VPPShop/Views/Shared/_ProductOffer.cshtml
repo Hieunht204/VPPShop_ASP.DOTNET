@@ -1,0 +1,12 @@
+﻿@model VPPShop.Models.ProductCardVM
+
+<div class="product-offer mb-30" style="height: 300px;">
+    <img class="img-fluid" src="img/products/@Model.Image" alt="@Model.ProductName">
+    <div class="offer-text">
+        <h2 class="mb-3">
+            <span class="text-dark text-uppercase badge badge-primary">Giảm @Model.DiscountPercent%</span>
+        </h2>
+        <h3 class="text-white mb-3">Ưu đãi đặc biệt</h3>
+        <a asp-controller="Product" asp-action="Details" asp-route-id="@Model.ProductId" class="btn btn-outline-primary rounded">Mua ngay</a>
+    </div>
+</div>

@@ -1,0 +1,81 @@
+﻿@model VPPShop.Models.RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="container-fluid">
+    <form asp-controller="Account" asp-action="Register" method="post" class="col-12" enctype="multipart/form-data">
+        <h2 class="px-xl-5 section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Đăng ký tài khoản</span></h2>
+        <div class="row px-xl-5 justify-content-center">
+            <div class="col-lg-6 h-100">
+                <div class="bg-light p-30 pb-3">
+                    <div class="row">
+                        <div class="col-12 form-group">
+                            <label>Họ tên</label>
+                            <input asp-for="Fullname" class="form-control" type="text" placeholder="">
+                            <span asp-validation-for="Fullname" class="text-danger"></span>
+                        </div>
+                        <div class="col-12 form-group">
+                            <label>Email</label>
+                            <input asp-for="Email" class="form-control" type="text" placeholder="">
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="col-12 form-group">
+                            <label>Mật khẩu</label>
+                            <input asp-for="PassWord" class="form-control" type="password" placeholder="">
+                            <span asp-validation-for="PassWord" class="text-danger"></span>
+                        </div>
+                        <div class="col-12 form-group">
+                            <label>Xác nhận mật khẩu</label>
+                            <input asp-for="ConfirmPassword" class="form-control" type="password" placeholder="">
+                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 h-100">
+                <div class="bg-light p-30 pb-3">
+                    <div class="row justify-content-center">
+                        <div class="col-12 form-group">
+                            <label>Ảnh đại diện</label>
+                            <input name="img" asp-for="Image" class="form-control border-0 p-0 justify-content-center d-flex" type="file" accept="image/*">
+                            <span asp-validation-for="Image" class="text-danger"></span>
+                        </div>
+                        <div class="col-12 form-group">
+                            <label>Số điện thoại</label>
+                            <input asp-for="Phonenumber" class="form-control" type="text" placeholder="">
+                            <span asp-validation-for="Phonenumber" class="text-danger"></span>
+                        </div>
+                        <div class="col-12 form-group">
+                            <label>Địa chỉ</label>
+                            <input asp-for="Address" class="form-control" type="text" placeholder="">
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+                        <div class="col-12 form-group align-items-center d-inline-flex mt-3 mb-3">
+                            <label class="mr-3 m-0">Giới tính</label>
+                            <div class="form-check form-check-inline">
+                                <input asp-for="Gender" class="form-check-input" type="radio" value="true" checked>
+                                <label class="form-check-label">Nam</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input asp-for="Gender" class="form-check-input" type="radio" value="false">
+                                <label class="form-check-label">Nữ</label>
+                            </div>
+                        </div>
+                        <div class="col-12 form-group mb-5 mt-3">
+                            <label>Ngày sinh</label>
+                            <input asp-for="DateOfBirth" class="form-control" type="date">
+                            <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+                        </div>
+                        <div class="col-12 form-group">
+                            <button class="btn btn-primary w-100 py-2" type="submit">Đăng ký</button>
+                        </div>
+                        <h6 class="text-center"><a asp-controller="Account" asp-action="Login">Đã có tài khoản? Đăng nhập</a></h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+

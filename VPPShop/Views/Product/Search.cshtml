@@ -1,0 +1,81 @@
+﻿@model VPPShop.Models.ProductListVM
+@{
+    ViewData["Title"] = "Search";
+    Layout = "_ProductListTemplate";
+    ViewBag.ShowSidebar = true;
+    var currentAction = ViewContext.RouteData.Values["action"].ToString();
+    var currentController = ViewContext.RouteData.Values["controller"].ToString();
+
+    var queryParams = new Dictionary<string, string>
+            {
+                ["displayNumber"] = Model.DisplayNumber.ToString()
+            };
+
+    if (!string.IsNullOrEmpty(Model.Keyword))
+    {
+        queryParams["keyword"] = Model.Keyword;
+    }
+
+    if (!string.IsNullOrEmpty(Model.CategoryId))
+    {
+        queryParams["category"] = Model.CategoryId;
+    }
+}
+
+@section BreadCrumb {
+    <div class="container-fluid">
+        <div class="row px-xl-5">
+            <div class="col-12">
+                <nav class="breadcrumb bg-light mb-30">
+                    <a class="breadcrumb-item text-dark" href="#">Home</a>
+                    <a class="breadcrumb-item text-dark" href="#">Shop</a>
+                    <span class="breadcrumb-item active">Shop List</span>
+                </nav>
+            </div>
+        </div>
+    </div>
+}
+
+@foreach (var item in Model.Products)
+{
+    <div class="col-lg-4 col-md-6 col-sm-6 pb-1">
+        @await Html.PartialAsync("_ProductCard", item)
+    </div>
+}
+<div class="col-12">
+    <nav>
+        <ul class="pagination justify-content-center">
+            @if (Model.CurrentPage > 1)
+            {
+                queryParams["page"] = (Model.CurrentPage - 1).ToString();
+                <li class="page-item">
+                    <a class="page-link" href="@Url.Action(currentAction, currentController, queryParams)">Trước</a>
+                </li>
+            }
+            else
+            {
+                <li class="page-item disabled"><a class="page-link" href="#">Trước</a></li>
+            }
+
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                queryParams["page"] = i.ToString();
+                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                    <a class="page-link" href="@Url.Action(currentAction, currentController, queryParams)">@i</a>
+                </li>
+            }
+
+            @if (Model.CurrentPage < Model.TotalPages)
+            {
+                queryParams["page"] = (Model.CurrentPage + 1).ToString();
+                <li class="page-item">
+                    <a class="page-link" href="@Url.Action(currentAction, currentController, queryParams)">Sau</a>
+                </li>
+            }
+            else
+            {
+                <li class="page-item disabled"><a class="page-link" href="#">Sau</a></li>
+            }
+        </ul>
+    </nav>
+</div>

@@ -1,0 +1,7 @@
+﻿@foreach (var item in Model)
+{
+    <a class="nav-link nav-item" asp-controller="Product" asp-action="Index" asp-route-category="@item.CategoryId">
+            @item.CategoryName
+    </a>
+}
+

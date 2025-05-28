@@ -1,0 +1,26 @@
+﻿@{
+    ViewData["Title"] = "Success";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6 text-center">
+            <div class="card shadow rounded-4 p-4 border-success border-2">
+                <div class="card-body">
+                    <div class="mb-4">
+                        <i class="bi bi-check-circle-fill text-success display-1"></i>
+                    </div>
+                    <h2 class="text-success fw-bold">Bạn đã đăng ký tài khoản thành công!</h2>
+                    <div class="mt-4">
+                        <a href="@Url.Action("VerifyEmail")" class="btn btn-outline-success rounded-pill px-4">
+                            Xác thực email
+                        </a>
+                        <a href="@Url.Action("Login")" class="btn btn-success rounded-pill px-4 ms-2">
+                            Đăng nhập
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

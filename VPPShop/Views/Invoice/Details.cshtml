@@ -1,0 +1,33 @@
+﻿@model VPPShop.Entities.Invoice
+
+<div class="container">
+    <h2>Chi tiết Hóa đơn @Model.InvoiceId</h2>
+    <p><strong>Ngày đặt:</strong> @Model.OrderDate.ToString("dd/MM/yyyy")</p>
+    <p><strong>Trạng thái:</strong> @Model.Status.StatusName</p>
+    <p><strong>Phương thức thanh toán:</strong> @Model.PaymentMethod</p>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Sản phẩm</th>
+                <th>Giá</th>
+                <th>Số lượng</th>
+                <th>Giảm giá</th>
+                <th>Thành tiền</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.InvoiceDetails)
+            {
+                <tr>
+                    <td>@item.Product.ProductName</td>
+                    <td>@item.UnitPrice.ToString("N0", new System.Globalization.CultureInfo("vi-VN")) đ</td>
+                    <td>@item.Quantity</td>
+                    <td>@(item.Discount * 100)%</td>
+                    <td>@((item.UnitPrice * (1 - item.Discount) * item.Quantity).ToString("N0", new System.Globalization.CultureInfo("vi-VN")) + " đ")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+

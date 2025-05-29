@@ -58,12 +58,13 @@ namespace VPPShop.Controllers
             //    ModelState.AddModelError("", "Tài khoản chưa được xác minh qua email. Vui lòng kiểm tra hộp thư.");
             //    return View(model);
             //}
+            string roleName = customer.Role == 1 ? "Admin" : "Customer";
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, customer.Fullname),
                 new Claim(ClaimTypes.Email, customer.Email),
                 new Claim(MySetttings.CLAIM_CUSTOMERID, customer.CustomerId),
-                new Claim(ClaimTypes.Role, customer.Role.ToString())
+                new Claim(ClaimTypes.Role, roleName)
             };
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

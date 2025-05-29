@@ -53,6 +53,10 @@
                                 }
                                 @if (User.Identity.IsAuthenticated)
                                 {
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <a class="dropdown-item" asp-controller="AdminProduct" asp-action="Index">Quản lý sản phẩm</a>
+                                    }
                                     <form asp-controller="Account" asp-action="Logout" method="post">
                                         <button type="submit" class="dropdown-item">Đăng xuất</button>
                                     </form>
@@ -126,12 +130,11 @@
                             <div class="navbar-nav mr-auto py-0">
                                 <a asp-controller="Home" asp-action="Index" class="nav-item nav-link">Trang chủ</a>
                                 <a asp-controller="Product" asp-action="Index" class="nav-item nav-link">Sản phẩm</a>
+                                <a asp-controller="Invoice" asp-action="Index" class="nav-item nav-link">Hoá đơn</a>
+
                             </div>
                             <div class="navbar-nav ml-auto py-0 d-none d-lg-block">
-                                <a href="" class="btn px-0">
-                                    <i class="fas fa-heart text-primary"></i>
-                                    <span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">0</span>
-                                </a>
+                                @await Component.InvokeAsync("FavoriteIcon", new { size = "large" })
                                 @await Component.InvokeAsync("CartIcon", new { size = "large" })
                             </div>
                         </div>
@@ -226,6 +229,7 @@
     <script src="~/js/main.js"></script>
     <script src="~/js/cart.js"></script>
     <script src="~/js/checkout.js"></script>
+    <script src="~/js/favorites.js"></script>
     <script src="https://www.paypal.com/sdk/js?client-id=@ViewBag.PaypalClientId"></script>
 
 

@@ -6,7 +6,9 @@
         <img class="product-img-fixed" src="~/img/products/@Model.Image" alt="@Model.ProductName">
         <div class="product-action">
             <a class="btn btn-outline-dark btn-square btn-add-to-cart" data-product-id="@Model.ProductId" data-quantity="1" data-toggle="tooltip" title="Thêm vào giỏ hàng"><i class="fa fa-shopping-cart"></i></a>
-            <a class="btn btn-outline-dark btn-square" href="" data-toggle="tooltip" title="Thêm vào yêu thích"><i class="far fa-heart"></i></a>
+            <a class="btn btn-outline-dark btn-square btn-add-to-favorites" data-product-id="@Model.ProductId" data-toggle="tooltip" title="Thêm vào yêu thích">
+                <i class="far fa-heart"></i>
+            </a>            
             <a class="btn btn-outline-dark btn-square" asp-controller="Product" asp-action="Details" asp-route-id="@Model.ProductId" data-toggle="tooltip" title="Xem thông tin sản phẩm"><i class="fa fa-search"></i></a>
         </div>
     </div>

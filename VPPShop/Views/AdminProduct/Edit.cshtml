@@ -1,0 +1,84 @@
+﻿@model VPPShop.Models.AdminEditProductViewModel
+@{
+    ViewData["Title"] = "Chỉnh sửa sản phẩm";
+}
+
+<div class="container">
+    <h2>Chỉnh sửa sản phẩm</h2>
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <form asp-controller="AdminProduct" asp-action="Edit" method="post" enctype="multipart/form-data">
+
+        <div class="row">
+           
+
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label asp-for="ProductName"></label>
+                    <input asp-for="ProductName" class="form-control" />
+                    <span asp-validation-for="ProductName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="AliasName"></label>
+                    <input asp-for="AliasName" class="form-control" />
+                    <span asp-validation-for="AliasName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="SelectedCategoryId"></label>
+                    <select asp-for="SelectedCategoryId" asp-items="Model.CategoryOptions" class="form-control"></select>
+                    <span asp-validation-for="SelectedCategoryId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="UnitDescription"></label>
+                    <input asp-for="UnitDescription" class="form-control" />
+                    <span asp-validation-for="UnitDescription" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="UnitPrice"></label>
+                    <input asp-for="UnitPrice" class="form-control" />
+                    <span asp-validation-for="UnitPrice" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Discount"></label>
+                    <input asp-for="Discount" class="form-control" />
+                    <span asp-validation-for="Discount" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ManufactureDate"></label>
+                    <input asp-for="ManufactureDate" type="date" class="form-control" />
+                    <span asp-validation-for="ManufactureDate" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="SelectedSupplierId"></label>
+                    <select asp-for="SelectedSupplierId" asp-items="Model.SupplierOptions" class="form-control"></select>
+                    <span asp-validation-for="SelectedSupplierId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Description"></label>
+                    <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa fa-save"></i> Lưu thay đổi
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

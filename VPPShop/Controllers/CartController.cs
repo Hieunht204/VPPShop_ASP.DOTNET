@@ -120,98 +120,127 @@ namespace VPPShop.Controllers
 
         [Authorize]
         [HttpPost]
+        [Authorize]
+        [HttpPost]
         public IActionResult Checkout(CheckoutViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var customerId = HttpContext.User.Claims.SingleOrDefault(p => p.Type == MySetttings.CLAIM_CUSTOMERID).Value;
-                var customer = new Customer();
-                if (model.SamePerson)
+                return View(Cart);
+            }
+
+            var cart = HttpContext.Session.Get<List<CartViewModel>>(MySetttings.CART_KEY);
+            if (cart == null || !cart.Any())
+            {
+                ModelState.AddModelError("", "Giỏ hàng đang trống.");
+                return View(Cart);
+            }
+
+            var paymentMethod = model.PaymentMethod ?? "COD";
+            var customerId = HttpContext.User.Claims
+                .SingleOrDefault(p => p.Type == MySetttings.CLAIM_CUSTOMERID)?.Value;
+
+            if (string.IsNullOrEmpty(customerId))
+            {
+                return Unauthorized("Chưa đăng nhập.");
+            }
+
+            var customer = new Customer();
+            if (model.SamePerson)
+            {
+                customer = _context.Customers.SingleOrDefault(c => c.CustomerId == customerId);
+            }
+
+            // Tạo mã Invoice mới
+            var invoiceIds = _context.Invoices
+                .Where(i => i.InvoiceId.StartsWith("inv"))
+                .Select(i => i.InvoiceId)
+                .ToList();
+
+            int maxNumber = invoiceIds
+                .Select(id =>
                 {
-                    customer = _context.Customers.SingleOrDefault(c => c.CustomerId == customerId);
+                    var match = Regex.Match(id, @"inv(\d+)$");
+                    return match.Success && int.TryParse(match.Groups[1].Value, out int n) ? n : 0;
+                })
+                .DefaultIfEmpty(0)
+                .Max();
 
-                }
+            var invoiceId = "inv" + (maxNumber + 1);
 
-                var invoiceIds = _context.Invoices
-                    .Where(i => i.InvoiceId.StartsWith("inv"))
-                    .Select(i => i.InvoiceId)
+            var invoice = new Invoice
+            {
+                InvoiceId = invoiceId,
+                CustomerId = customerId,
+                Fullname = model.FullName ?? customer.Fullname,
+                Address = model.Address ?? customer.Address,
+                Phonenumber = model.PhoneNumber ?? customer.Phonenumber,
+                OrderDate = DateTime.Now,
+                PaymentMethod = paymentMethod,
+                ShippingMethod = "",
+                StatusId = "st01",
+                Note = model.Note,
+            };
+
+            using var transaction = _context.Database.BeginTransaction();
+            try
+            {
+                _context.Invoices.Add(invoice);
+                _context.SaveChanges();
+
+                // Tạo mã InvoiceDetail mới
+                var invoiceDetailIds = _context.InvoiceDetails
+                    .Where(i => i.InvoiceDetailId.StartsWith("ind"))
+                    .Select(i => i.InvoiceDetailId)
                     .ToList();
 
-                int maxNumber = invoiceIds
+                int maxInvoiceDetailNumber = invoiceDetailIds
                     .Select(id =>
                     {
-                        var match = Regex.Match(id, @"inv(\d+)$");
+                        var match = Regex.Match(id, @"ind(\d+)$");
                         return match.Success && int.TryParse(match.Groups[1].Value, out int n) ? n : 0;
                     })
+                    .DefaultIfEmpty(0)
                     .Max();
 
-                var invoiceId = "inv" + (maxNumber + 1);
+                int counter = maxInvoiceDetailNumber;
+                var invoiceDetails = new List<InvoiceDetail>();
 
-                var invoice = new Invoice
+                foreach (var item in cart)
                 {
-                    InvoiceId = invoiceId,
-                    CustomerId = customerId,
-                    Fullname = model.FullName ?? customer.Fullname,
-                    Address = model.Address ?? customer.Address,
-                    Phonenumber = model.PhoneNumber ?? customer.Phonenumber,
-                    OrderDate = DateTime.Now,
-                    PaymentMethod = "COD",
-                    ShippingMethod = "",
-                    StatusId = "st01",
-                    Note = model.Note,
-                };
-
-                _context.Database.BeginTransaction();
-                try
-                {
-
-                    _context.Database.CommitTransaction();
-                    _context.Add(invoice);
-                    _context.SaveChanges();
-
-                    var invoiceDetailIds = _context.InvoiceDetails
-                        .Where(i => i.InvoiceDetailId.StartsWith("ind"))
-                        .Select(i => i.InvoiceDetailId)
-                        .ToList();
-
-                    int maxInvoiceDetailNumber = invoiceDetailIds
-                        .Select(id =>
-                        {
-                            var match = Regex.Match(id, @"ind(\d+)$");
-                            return match.Success && int.TryParse(match.Groups[1].Value, out int n) ? n : 0;
-                        })
-                        .Max();
-
-                    var invoiceDetails = new List<InvoiceDetail>();
-                    foreach (var item in Cart)
+                    counter++;
+                    var invoiceDetailId = "ind" + counter;
+                    invoiceDetails.Add(new InvoiceDetail
                     {
-                        var invoiceDetailId = "ind" + (maxInvoiceDetailNumber + 1);
-                        invoiceDetails.Add(new InvoiceDetail
-                        {
-                            InvoiceDetailId = invoiceDetailId,
-                            InvoiceId = invoice.InvoiceId,
-                            Quantity = item.Quantity,
-                            UnitPrice = item.UnitPrice,
-                            ProductId = item.ProductId,
-                            Discount = item.Discount,
-                        });
-                    }
-                    _context.InvoiceDetails.AddRange(invoiceDetails);
-                    _context.SaveChanges();
-
-                    HttpContext.Session.Set<List<CartViewModel>>(MySetttings.CART_KEY, new List<CartViewModel>());
-
-                    return View("Success");
-                }
-                catch
-                {
-
+                        InvoiceDetailId = invoiceDetailId,
+                        InvoiceId = invoice.InvoiceId,
+                        Quantity = item.Quantity,
+                        UnitPrice = item.UnitPrice,
+                        ProductId = item.ProductId,
+                        Discount = item.Discount,
+                    });
                 }
 
-                return RedirectToAction("Index", "Product");
+                _context.InvoiceDetails.AddRange(invoiceDetails);
+                _context.SaveChanges();
+
+                transaction.Commit();
+
+                // Xóa giỏ hàng sau khi thanh toán thành công
+                HttpContext.Session.Set<List<CartViewModel>>(MySetttings.CART_KEY, new List<CartViewModel>());
+
+                return View("Success");
             }
-            return View(Cart);
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                ModelState.AddModelError("", "Lỗi khi lưu đơn hàng: " + ex.Message);
+                return View(Cart);
+            }
         }
+
+
+
         #region Paypal(Thanh toán Paypal)
         [Authorize]
         [HttpPost("/Cart/create-paypal-order")]
@@ -244,16 +273,103 @@ namespace VPPShop.Controllers
             {
                 var response = await _paypalClient.CaptureOrder(orderID);
 
-                // Lưu database đơn hàng
-                return Ok(response);
+                var customerId = HttpContext.User.Claims.SingleOrDefault(p => p.Type == MySetttings.CLAIM_CUSTOMERID)?.Value;
+
+                if (string.IsNullOrEmpty(customerId))
+                    return Unauthorized("User not logged in.");
+
+                var cart = HttpContext.Session.Get<List<CartViewModel>>(MySetttings.CART_KEY) ?? new List<CartViewModel>();
+
+                var invoiceIds = _context.Invoices
+                    .Where(i => i.InvoiceId.StartsWith("inv"))
+                    .Select(i => i.InvoiceId)
+                    .ToList();
+
+                int maxNumber = invoiceIds
+                    .Select(id =>
+                    {
+                        var match = Regex.Match(id, @"inv(\d+)$");
+                        return match.Success && int.TryParse(match.Groups[1].Value, out int n) ? n : 0;
+                    })
+                    .DefaultIfEmpty(0)
+                    .Max();
+
+                var invoiceId = "inv" + (maxNumber + 1);
+
+                var invoice = new Invoice
+                {
+                    InvoiceId = invoiceId,
+                    CustomerId = customerId,
+                    Fullname = "", // Bạn có thể lấy thêm info từ Customer nếu cần
+                    Address = "",  // hoặc truyền từ phía client qua request thêm
+                    Phonenumber = "",
+                    OrderDate = DateTime.Now,
+                    PaymentMethod = "PayPal",
+                    ShippingMethod = "",
+                    StatusId = "st01",
+                    Note = ""
+                };
+
+                using var transaction = _context.Database.BeginTransaction();
+
+                try
+                {
+                    _context.Invoices.Add(invoice);
+                    _context.SaveChanges();
+
+                    // 6. Tạo invoice detail
+                    var invoiceDetailIds = _context.InvoiceDetails
+                        .Where(i => i.InvoiceDetailId.StartsWith("ind"))
+                        .Select(i => i.InvoiceDetailId)
+                        .ToList();
+
+                    int maxInvoiceDetailNumber = invoiceDetailIds
+                        .Select(id =>
+                        {
+                            var match = Regex.Match(id, @"ind(\d+)$");
+                            return match.Success && int.TryParse(match.Groups[1].Value, out int n) ? n : 0;
+                        })
+                        .DefaultIfEmpty(0)
+                        .Max();
+
+                    var invoiceDetails = new List<InvoiceDetail>();
+                    int counter = maxInvoiceDetailNumber;
+
+                    foreach (var item in cart)
+                    {
+                        counter++;
+                        var invoiceDetailId = "ind" + counter;
+                        invoiceDetails.Add(new InvoiceDetail
+                        {
+                            InvoiceDetailId = invoiceDetailId,
+                            InvoiceId = invoice.InvoiceId,
+                            Quantity = item.Quantity,
+                            UnitPrice = item.UnitPrice,
+                            ProductId = item.ProductId,
+                            Discount = item.Discount,
+                        });
+                    }
+
+                    _context.InvoiceDetails.AddRange(invoiceDetails);
+                    _context.SaveChanges();
+
+                    HttpContext.Session.Set<List<CartViewModel>>(MySetttings.CART_KEY, new List<CartViewModel>());
+                    transaction.Commit();
+
+                    return Ok(new { success = true, message = "Thanh toán PayPal thành công và đã lưu hóa đơn.", paypalResponse = response });
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    return StatusCode(500, new { success = false, message = "Lỗi lưu hóa đơn: " + ex.Message });
+                }
             }
             catch (Exception ex)
             {
-                var error = new { ex.GetBaseException().Message };
+                var error = new { message = ex.GetBaseException().Message };
                 return BadRequest(error);
             }
         }
-
         [Authorize]
         public IActionResult PaymentSuccess()
         {

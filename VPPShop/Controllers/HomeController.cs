@@ -8,7 +8,7 @@ using VPPShop.Entities;
 
 namespace VPPShop.Controllers;
 
-[Authorize(Roles = "0")]
+[Authorize]
 public class HomeController : Controller
 {
     private readonly TmdtContext _context;

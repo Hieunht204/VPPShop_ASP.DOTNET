@@ -1,0 +1,62 @@
+﻿@model List<VPPShop.Models.ProductCardVM>
+@{
+    ViewData["Title"] = "Quản lý sản phẩm";
+}
+
+<div class="container p-0">
+    <div class="mb-3 d-inline-flex justify-content-between align-items-center w-100">
+        <h2 class="m-0">Quản lý sản phẩm</h2>
+
+        <div class="d-inline-flex">
+            <form method="get" asp-action="Index" asp-controller="AdminProduct" class="d-inline-flex mr-3 align-items-center justify-content-center">
+                <input type="text" name="keyword" class="form-control me-2" placeholder="Tìm theo tên sản phẩm" value="@ViewBag.Search" />
+                <button type="submit" class="btn btn-primary d-inline-flex">
+                    <i class="fa fa-search align-items-center justify-content-center d-flex mr-2"></i> Tìm
+                </button>
+            </form>
+           
+            <a asp-controller="AdminProduct" asp-action="Create" class="btn btn-success">
+                <i class="bi bi-plus-lg"></i> Thêm sản phẩm
+            </a>
+        </div>
+    </div>
+
+    <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+        <table class="table table-bordered table-striped table-hover" style="table-layout: fixed; min-width: 800px;">
+            <thead class="table-dark">
+                <tr>
+                    <th style="width: 100px;">Ảnh</th>
+                    <th style="width: 250px;">Tên sản phẩm</th>
+                    <th style="width: 150px;">Giá</th>
+                    <th style="width: 120px;">Giảm giá</th>
+                    <th style="width: 150px;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <img src="~/img/products/@item.Image" alt="@item.ProductName" width="80" height="80" class="rounded" />
+                        </td>
+                        <td class="text-left align-middle text-truncate">@item.ProductName</td>
+                        <td class="text-left align-middle">@item.UnitPrice.ToString("N0", new System.Globalization.CultureInfo("vi-VN")) đ</td>
+                        <td class="text-left align-middle">@(item.Discount * 100)%</td>
+                        <td class="text-center align-middle">
+                            <a asp-action="Edit" asp-route-id="@item.ProductId" class="btn btn-sm btn-primary me-2">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                            <form asp-action="Delete" asp-route-id="@item.ProductId" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xoá sản phẩm này không?');">
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
